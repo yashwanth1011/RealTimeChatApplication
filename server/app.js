@@ -7,6 +7,7 @@ const jwt = require('jsonwebtoken');
 const port = process.env.PORT || 8000;
 
 const Users = require('./models/users')
+const Conversations = require('./models/Conversations')
 
 
 
@@ -53,8 +54,7 @@ app.post('/api/register', async (req, res, next) => {
 
 app.post('/api/login', async (req, res, next) => {
     try {
-        const { email, password } = req.body;
-
+        const { email, password } = req.body; 
         if (!email || !password) {
             res.status(400).send('Please fill all required fields');
         } else {
@@ -87,6 +87,36 @@ app.post('/api/login', async (req, res, next) => {
         console.log(error, 'Error')
     }
 })
+
+app.post('/api/conversation', async (req, res) => {
+    try {
+        const { senderId, receiverId } = req.body;
+        const newCoversation = new Conversations({ members: [senderId, receiverId] });
+        await newCoversation.save();
+        res.status(200).send('Conversation created successfully');
+    } catch (error) {
+        console.log(error, 'Error')
+    }
+})
+
+
+app.get('/api/conversations/:userId', async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        const conversations = await Conversations.find({ members: { $in: [userId] } });
+        const conversationUserData = Promise.all(conversations.map(async (conversation) => {
+            const receiverId = conversation.members.find((member) => member !== userId);
+            const user = await Users.findById(receiverId);
+            return { user: { AnotherUserId: user._id, email: user.email, fullName: user.fullName }, conversationId: conversation._id }
+        }))
+        res.status(200).json(await conversationUserData);
+    } catch (error) {
+        console.log(error, 'Error')
+    }
+})
+
+
+
 
 
 app.listen(port, () => {
