@@ -1,12 +1,7 @@
-
 import './App.css';
 import Dashboard from './modules/Dashboard';
-import { Form } from './modules/Form';
-import {Routes, Route, Navigate} from 'react-router-dom';
-
-
-
-import { useNavigate } from 'react-router-dom';
+import Form from './modules/Form';
+import { Routes, Route, Navigate } from 'react-router-dom';
 
 const ProtectedRoute = ({ children, auth=false }) => {
   const isLoggedIn = localStorage.getItem('user:token') !== null || false;
@@ -20,8 +15,6 @@ const ProtectedRoute = ({ children, auth=false }) => {
 
   return children
 }
-
-
 
 function App() {
   return (
@@ -46,4 +39,3 @@ function App() {
 }
 
 export default App;
-
